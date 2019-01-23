@@ -9,7 +9,9 @@ package it.polito.tdp.extflightdelays;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Airport;
 import it.polito.tdp.extflightdelays.model.Model;
+import it.polito.tdp.extflightdelays.model.NeighborsAirport;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -37,7 +39,7 @@ public class ExtFlightDelaysController {
     private Button btnAnalizza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoPartenza"
-    private ComboBox<?> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAeroportiConnessi"
     private Button btnAeroportiConnessi; // Value injected by FXMLLoader
@@ -50,16 +52,37 @@ public class ExtFlightDelaysController {
 
     @FXML
     void doAnalizzaAeroporti(ActionEvent event) {
+    	double distanza = Double.parseDouble(this.distanzaMinima.getText());
+    		this.model.creaGrafo(distanza);
+    		this.cmbBoxAeroportoPartenza.getItems().addAll(this.model.getOriginAirport());
 
     }
 
     @FXML
     void doCalcolaAeroportiConnessi(ActionEvent event) {
+    	 Airport nameAirport = this.cmbBoxAeroportoPartenza.getValue();
+    	 txtResult.clear();
+    	 txtResult.setText("Lista aereoporti vicini:\n");
+    	 for(NeighborsAirport na : this.model.getNeighbour(nameAirport)) {
+    		 txtResult.appendText("- " +na.toString() + "\n");
+    	 }
+    	 
 
     }
 
     @FXML
     void doCercaItinerario(ActionEvent event) {
+    	txtResult.clear();
+    	double distanzaMax = Double.parseDouble(this.numeroVoliTxtInput.getText());
+    	System.out.println(distanzaMax);
+    	 Airport nameAirport = this.cmbBoxAeroportoPartenza.getValue();
+    	 double sum = 0.0;
+    	 txtResult.setText("Viaggio con più aereoporti: \n");
+    	 for(NeighborsAirport na : this.model.listNeigbourAirport(nameAirport, distanzaMax)) {
+    		 sum += na.getDistance();
+    		 txtResult.appendText(na.toString() + "\n");
+    	 }
+    	 txtResult.appendText("Distanza totale: " + sum);
 
     }
 
@@ -77,6 +100,8 @@ public class ExtFlightDelaysController {
     
     public void setModel(Model model) {
 		this.model = model;
+		
+		
 		
 	}
 }
